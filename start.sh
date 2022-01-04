@@ -1,0 +1,1 @@
+./peer_server 127.0.0.1 8080 . 5 /home/qaz/work/config/server.crt /home/qaz/work/config/server.key

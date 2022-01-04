@@ -1,0 +1,12 @@
+{
+    "cmake.debugConfig": {
+        "args": [
+            "127.0.0.1",
+            "8080",
+            ".",
+            "1",
+            "/home/qaz/work/config/server.crt",
+            "/home/qaz/work/config/server.key"
+        ]
+    }
+}
