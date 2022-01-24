@@ -11,7 +11,8 @@ std::string getErrorString(EError error) {
     // TODO enum to string
     static const char * kErrorMessages[] = {
         "Invalid message",
-        "Internal error"
+        "Internal error",
+        "Recipient not Found"
     };
     return kErrorMessages[static_cast<int>(error)];
 }
@@ -42,18 +43,19 @@ std::string makeResponseSignIn() {
     boost::property_tree::ptree root;
 
     root.put("res", static_cast<int>(EResult::OK));
-    root.put("data", "signin");
+    root.put("data.cmd", 1);
 
     std::stringstream ss;
     boost::property_tree::write_json(ss, root);
     return ss.str();
 }
 
-std::string makeResponseSendMessage() {
+std::string makeResponseSendMessage(
+    const std::string& from, const std::string& message) {
     boost::property_tree::ptree root;
 
-    root.put("res", static_cast<int>(EResult::OK));
-    root.put("data", "sendmessage");
+    root.put("from", from);
+    root.put("msg", message);
 
     std::stringstream ss;
     boost::property_tree::write_json(ss, root);

@@ -19,15 +19,21 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/smart_ptr.hpp>
 
+#include "config/logging.h"
 #include "listener.hpp"
+#include "logging/logging.h"
 #include "shared_state.hpp"
+
 
 namespace ssl = boost::asio::ssl;  // from <boost/asio/ssl.hpp>
 
 int main(int argc, char *argv[]) {
+    osv::logging::set_level("info");
+    LOG_INFO() << "Peer Server";
+
     // Check command line arguments.
     if (argc != 7) {
-        std::cerr
+        LOG_ERROR()
             << "Usage:  peer_server <address> <port> <doc_root> <threads>"
                 " <path SSL cert> <path SSL key>\n"
             << "Example:\n"

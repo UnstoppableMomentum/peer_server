@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set the project name
 project(peer_server)
 
-find_package(Boost 1.77.0 COMPONENTS regex program_options thread system REQUIRED)
+find_package(Boost 1.77.0 COMPONENTS log regex program_options thread system REQUIRED)
 find_package(OpenSSL)
 find_package(Threads REQUIRED)
 
@@ -22,6 +22,7 @@ add_executable(peer_server
         listener.cpp
         shared_state.cpp
         websocket_session.cpp
+        config/logging.cpp
         messaging/response.cpp
         )
 

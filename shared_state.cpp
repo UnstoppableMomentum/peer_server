@@ -3,12 +3,15 @@
 //
 
 #include <iostream>
+#include <utility>
 
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "shared_state.hpp"
+
+#include "logging/logging.h"
 #include "websocket_session.hpp"
 #include "messaging/response.h"
 
@@ -33,16 +36,15 @@ void shared_state::
 }
 
 std::string shared_state::sendMessage(
-    const std::string& to, const std::string& message) {
-    std::cout << __PRETTY_FUNCTION__
-        << " to:" << to
-        << " message:" << message << std::endl;
-
+    const std::string& from, const std::string& to,
+    const std::string& message) {
     std::string response;
     if (!to.empty() && !message.empty()) {
-        int res = sendTo(message, to);
+        int res = sendTo(from, to, message);
         if (res > 0) {
             response = makeResponseSuccess();
+        } else {
+            response = makeResponseError(EError::recipientNotFound);
         }
     } else {
         response = makeResponseError(EError::invalidRequest);
@@ -52,14 +54,15 @@ std::string shared_state::sendMessage(
 
 std::string shared_state::processRequestSignIn(const std::string& message,
     const boost::property_tree::ptree& pt, websocket_session* ws) {
-    std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
-    std::string response = "test string";
+    LOG_DEBUG() << __PRETTY_FUNCTION__ << " message:" << message;
+
+    std::string response = "";
     try {
         std::string id = pt.get<std::string>("data.id", "");
         std::cout << __PRETTY_FUNCTION__ << " id:" << id << std::endl;
 
         ws->setId(id);
-        response = makeResponseSuccess();
+        response = makeResponseSignIn();
     } catch(...) {
         response = makeResponseError(EError::invalidRequest);
     }
@@ -68,13 +71,14 @@ std::string shared_state::processRequestSignIn(const std::string& message,
 }
 
 std::string shared_state::processRequestSendMessage(
-    const std::string& message, const boost::property_tree::ptree& pt) {
-    std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
-    std::string response = "test string";
+    const std::string& message, const boost::property_tree::ptree& pt,
+    websocket_session* ws) {
+    std::string response = "";
     try {
-        std::string to = pt.get<std::string>("data.to", "");
-        std::string message = pt.get<std::string>("data.msg", "");
-        response = sendMessage(to, message);
+        const std::string from = ws->getId();
+        const std::string to = pt.get<std::string>("data.to", "");
+        const std::string message = pt.get<std::string>("data.msg", "");
+        response = sendMessage(from, to, message);
     } catch(...) {
         response = makeResponseError(EError::invalidRequest);
     }
@@ -108,7 +112,7 @@ std::string shared_state::handle_message(
                 // response = signOut();
             break;
             case EMessageId::SEND_MESSAGE:
-                response = processRequestSendMessage(message, pt);
+                response = processRequestSendMessage(message, pt, ws);
             break;
             default:
                 response = makeResponseError(EError::invalidRequest);
@@ -145,12 +149,15 @@ void shared_state::send(std::string message) {
             sp->send(ss);
 }
 
-int shared_state::sendTo(std::string message, const std::string& to) {
-    std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
+int shared_state::sendTo(
+    const std::string& from, const std::string& to, std::string message) {
+
+    const std::string messageToSend(makeResponseSendMessage(from, message));
 
     int res = 0;
     // Put the message in a shared pointer so we can re-use it for each client
-    auto const ss = boost::make_shared<std::string const>(std::move(message));
+    auto const ss = boost::make_shared<std::string const>(
+        std::move(messageToSend));
 
     // Make a local list of all the weak pointers representing
     // the sessions, so we can do the actual sending without

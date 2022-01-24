@@ -22,6 +22,7 @@ enum class EMessageId {
 enum class EError {
     invalidRequest = 0,
     internalError  = 1,
+    recipientNotFound = 2,
 };
 
 #endif  // MESSAGING_SIGNALING_PROTOCOL_H_

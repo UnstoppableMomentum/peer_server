@@ -42,14 +42,16 @@ class shared_state {
         websocket_session* ws);
 
     std::string handle_message(websocket_session* ws, std::string message);
-    std::string sendMessage(const std::string& to,
+    std::string sendMessage(const std::string& from, const std::string& to,
         const std::string& message);
     std::string processRequestSendMessage(
-        const std::string& message, const boost::property_tree::ptree& pt);
+        const std::string& message,
+        const boost::property_tree::ptree& pt,
+        websocket_session* ws);
 
     void send(std::string message);
-    int sendTo(std::string message, const std::string& to);
-
+    int sendTo(const std::string& from, const std::string& to,
+        std::string message);
 };
 
 #endif  // SHARED_STATE_HPP_

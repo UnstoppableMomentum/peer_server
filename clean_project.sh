@@ -3,4 +3,4 @@ rm -rf CMakeFiles
 rm -f CMakeCache.txt
 rm -f *.cmake
 rm -f Makefile
-rm -f peer_conn_server_v3
+rm -f peer_server
