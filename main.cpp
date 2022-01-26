@@ -42,11 +42,9 @@ int main(int argc, char *argv[]) {
                 " /home/qaz/work/config/server.key\n";
         return EXIT_FAILURE;
     }
-    auto address = net::ip::make_address(argv[1]);
-
-    // TODO(qaz) use correct cpp11 type instead unsigned short
-    auto port = static_cast<unsigned short>(std::atoi(argv[2]));
-    auto doc_root = argv[3];
+    auto const address = net::ip::make_address(argv[1]);
+    auto const port = static_cast<std::uint16_t>(std::atoi(argv[2]));
+    auto const doc_root = argv[3];
     auto const threads = std::max<int>(1, std::atoi(argv[4]));
     const std::string path_ssl_crt = argv[5];
     const std::string path_ssl_key = argv[6];
