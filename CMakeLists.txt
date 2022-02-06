@@ -26,6 +26,7 @@ add_executable(peer_server
         websocket_session.cpp
         config/logging.cpp
         messaging/response.cpp
+        options/cmd_line_options.cpp
         )
 
 target_link_libraries(peer_server ${OPENSSL_LIBRARIES} -static-libgcc -static-libstdc++)
