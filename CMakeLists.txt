@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(Boost_USE_STATIC_LIBS ON)
+
 # set the project name
 project(peer_server)
 
@@ -26,6 +28,6 @@ add_executable(peer_server
         messaging/response.cpp
         )
 
-target_link_libraries(peer_server ${Boost_LIBRARIES})
-target_link_libraries(peer_server ${OPENSSL_LIBRARIES})
-target_link_libraries(peer_server ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(peer_server ${OPENSSL_LIBRARIES} -static-libgcc -static-libstdc++)
+target_link_libraries(peer_server ${Boost_LIBRARIES} -static-libgcc -static-libstdc++)
+target_link_libraries(peer_server ${CMAKE_THREAD_LIBS_INIT} -static-libgcc -static-libstdc++)
