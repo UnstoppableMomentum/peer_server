@@ -32,9 +32,11 @@ class listener : public boost::enable_shared_from_this<listener> {
 
  public:
     listener(
+        std::string host,
+        std::uint16_t port,
         net::io_context& ioc,
         ssl::context& ctx,
-        tcp::endpoint endpoint,
+    //    tcp::endpoint endpoint,
         boost::shared_ptr<shared_state> const& state);
 
     // Start accepting incoming connections

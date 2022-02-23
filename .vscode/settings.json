@@ -1,12 +1,11 @@
 {
     "cmake.debugConfig": {
         "args": [
-            "127.0.0.1",
-            "8080",
-            ".",
-            "1",
-            "/home/qaz/work/config/server.crt",
-            "/home/qaz/work/config/server.key"
+            "--server=lgwebrtc.com",
+            "--port=8080",
+            "--dbg_level=debug",
+            "--ssl_srt=/home/qaz/work/config/server.crt",
+            "--ssl_key=/home/qaz/work/config/server.key"
         ]
     }
 }

@@ -3,46 +3,63 @@
 //
 
 #include <iostream>
+#include <sstream>
 #include <utility>
 
+#include "logging/logging.h"
 #include "listener.hpp"
 #include "websocket_session.hpp"
 
 listener::listener(
+    std::string host,
+    std::uint16_t port,
     net::io_context &ioc,
     ssl::context &ctx,
-    tcp::endpoint endpoint,
     boost::shared_ptr<shared_state> const &state)
     : ioc_(ioc), ctx_(ctx), acceptor_(ioc), state_(state) {
     beast::error_code ec;
 
-    // Open the acceptor
-    acceptor_.open(endpoint.protocol(), ec);
-    if (ec) {
-        fail(ec, "open");
-        return;
-    }
+    tcp::resolver resolver{ioc};
 
-    // Allow address reuse
-    acceptor_.set_option(net::socket_base::reuse_address(true), ec);
-    if (ec) {
-        fail(ec, "set_option");
-        return;
-    }
+    boost::system::error_code error;
 
-    // Bind to the server address
-    acceptor_.bind(endpoint, ec);
-    if (ec) {
-        fail(ec, "bind");
-        return;
-    }
+    std::stringstream ss;
+    ss << port;
 
-    // Start listening for connections
-    acceptor_.listen(
-        net::socket_base::max_listen_connections, ec);
-    if (ec) {
-        fail(ec, "listen");
-        return;
+    tcp::resolver::results_type results = resolver.resolve(host, ss.str(), error);
+
+    for (tcp::endpoint const& endpoint : results) {
+        LOG_INFO() << endpoint << " try to utilize ...";
+
+        // Open the acceptor
+        acceptor_.open(endpoint.protocol(), ec);
+        if (ec) {
+            fail(ec, "open");
+            continue;
+        }
+
+        // Allow address reuse
+        acceptor_.set_option(net::socket_base::reuse_address(true), ec);
+        if (ec) {
+            fail(ec, "set_option");
+            continue;
+        }
+
+        // Bind to the server address
+        acceptor_.bind(endpoint, ec);
+        if (ec) {
+            fail(ec, "bind");
+            continue;
+        }
+
+        // Start listening for connections
+        acceptor_.listen(
+            net::socket_base::max_listen_connections, ec);
+        if (ec) {
+            fail(ec, "listen");
+            continue;
+        }
+         LOG_INFO() << endpoint << " start listening";
     }
 }
 
@@ -60,7 +77,7 @@ void listener::fail(beast::error_code ec, char const *what) {
     // Don't report on canceled operations
     if (ec == net::error::operation_aborted)
         return;
-    std::cerr << what << ": " << ec.message() << "\n";
+    LOG_ERROR() << what << ": " << ec.message();
 }
 
 // // Handle a connection

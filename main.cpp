@@ -44,9 +44,10 @@ int main(int argc, char *argv[]) {
         LOG_DEBUG() << "Apply debug level: " << clo.GetDbgLevel();
         osv::logging::set_level(clo.GetDbgLevel());
         LOG_DEBUG() << "Apply parameter address:" << clo.GetServer();
-        auto const address = net::ip::make_address(clo.GetServer());
+        std::string host = clo.GetServer();
+        //net::ip::make_address(clo.GetServer());
         LOG_DEBUG() << "Apply parameter port:" << clo.GetPort();
-        auto const port = clo.GetPort();
+        std::uint16_t port = clo.GetPort();
         LOG_DEBUG() << "Apply parameter doc_root: '.'";
         auto const doc_root = ".";
         LOG_DEBUG() << "Apply parameter threads: 1";
@@ -86,9 +87,11 @@ int main(int argc, char *argv[]) {
 
         // Create and launch a listening port
         boost::make_shared<listener>(
+            host,
+            port,
             ioc,
             ctx,
-            tcp::endpoint{address, port},
+           // tcp::endpoint{address, port},
             boost::make_shared<shared_state>(doc_root))
             ->run();
 
@@ -123,11 +126,11 @@ int main(int argc, char *argv[]) {
         for (auto &t : v)
             t.join();
     } catch( const boost::system::system_error& ex ) {
-         LOG_ERROR() << "Peer Server failed: " << ex.what() << std::endl;
+        LOG_ERROR() << "Peer Server failed (boost::system::system_error): " << ex.what() << std::endl;
     } catch (const std::exception& ex) {
-        LOG_ERROR() << "Peer Server failed: " << ex.what() << std::endl;
+        LOG_ERROR() << "Peer Server failed (std::exception): " << ex.what() << std::endl;
     } catch (...) {
-        LOG_ERROR() << "Peer Server failed";
+        LOG_ERROR() << "Peer Server failed (unknown exception)";
     }
 
     return EXIT_SUCCESS;
