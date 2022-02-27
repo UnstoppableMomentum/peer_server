@@ -8,7 +8,7 @@
 #include "messaging/response.h"
 
 std::string getErrorString(EError error) {
-    // TODO enum to string
+    // TODO(qqq) enum to string
     static const char * kErrorMessages[] = {
         "Invalid message",
         "Internal error",
@@ -50,8 +50,7 @@ std::string makeResponseSignIn() {
     return ss.str();
 }
 
-std::string makeResponseSendMessage(
-    const std::string& from, const std::string& message) {
+std::string makeResponseSendMessage(std::string_view from, std::string_view message) {
     boost::property_tree::ptree root;
 
     root.put("from", from);

@@ -8,6 +8,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 
 #include <boost/smart_ptr.hpp>
@@ -31,27 +32,18 @@ class shared_state {
  public:
     explicit shared_state(std::string doc_root);
 
-    std::string const&
-    doc_root() const noexcept { return doc_root_; }
+    std::string_view doc_root() const noexcept { return std::string_view(doc_root_); }
 
     void join(websocket_session* session);
     void leave(websocket_session* session);
-    std::string processRequestSignIn(
-        const std::string& message,
-        const boost::property_tree::ptree& pt,
-        websocket_session* ws);
+    std::string processRequestSignIn(const boost::property_tree::ptree& pt, websocket_session* ws);
 
-    std::string handle_message(websocket_session* ws, std::string message);
-    std::string sendMessage(const std::string& from, const std::string& to,
-        const std::string& message);
-    std::string processRequestSendMessage(
-        const std::string& message,
-        const boost::property_tree::ptree& pt,
-        websocket_session* ws);
+    std::string handle_message(websocket_session* ws, std::string_view message);
+    std::string sendMessage(std::string_view from, std::string_view to, std::string_view message);
+    std::string processRequestSendMessage(const boost::property_tree::ptree& pt, websocket_session* ws);
 
     void send(std::string message);
-    int sendTo(const std::string& from, const std::string& to,
-        std::string message);
+    int sendTo(std::string_view from, std::string_view to, std::string_view message);
 };
 
 #endif  // SHARED_STATE_HPP_

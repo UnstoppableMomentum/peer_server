@@ -36,8 +36,8 @@ void shared_state::
 }
 
 std::string shared_state::sendMessage(
-    const std::string& from, const std::string& to,
-    const std::string& message) {
+    std::string_view from, std::string_view to,
+    std::string_view message) {
     std::string response;
     if (!to.empty() && !message.empty()) {
         int res = sendTo(from, to, message);
@@ -52,14 +52,11 @@ std::string shared_state::sendMessage(
     return response;
 }
 
-std::string shared_state::processRequestSignIn(const std::string& message,
-    const boost::property_tree::ptree& pt, websocket_session* ws) {
-    LOG_DEBUG() << __PRETTY_FUNCTION__ << " message:" << message;
-
+std::string shared_state::processRequestSignIn(const boost::property_tree::ptree& pt, websocket_session* ws) {
     std::string response = "";
     try {
         std::string id = pt.get<std::string>("data.id", "");
-        std::cout << __PRETTY_FUNCTION__ << " id:" << id << std::endl;
+        LOG_DEBUG() << " id:" << id;
 
         ws->setId(id);
         response = makeResponseSignIn();
@@ -70,9 +67,7 @@ std::string shared_state::processRequestSignIn(const std::string& message,
     return response;
 }
 
-std::string shared_state::processRequestSendMessage(
-    const std::string& message, const boost::property_tree::ptree& pt,
-    websocket_session* ws) {
+std::string shared_state::processRequestSendMessage(const boost::property_tree::ptree& pt, websocket_session* ws) {
     std::string response = "";
     try {
         const std::string from = ws->getId();
@@ -86,9 +81,8 @@ std::string shared_state::processRequestSendMessage(
     return response;
 }
 
-std::string shared_state::handle_message(
-    websocket_session* ws, std::string message) {
-    std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
+std::string shared_state::handle_message(websocket_session* ws, std::string_view message) {
+    LOG_DEBUG() << " message:" << message.data();
     std::string response = "test string";
     try {
         std::stringstream ss;
@@ -106,13 +100,13 @@ std::string shared_state::handle_message(
             break;
             case EMessageId::SIGN_IN:
 
-                response = processRequestSignIn(message, pt, ws);
+                response = processRequestSignIn(pt, ws);
             break;
             case EMessageId::SIGN_OUT:
                 // response = signOut();
             break;
             case EMessageId::SEND_MESSAGE:
-                response = processRequestSendMessage(message, pt, ws);
+                response = processRequestSendMessage(pt, ws);
             break;
             default:
                 response = makeResponseError(EError::invalidRequest);
@@ -150,7 +144,7 @@ void shared_state::send(std::string message) {
 }
 
 int shared_state::sendTo(
-    const std::string& from, const std::string& to, std::string message) {
+    std::string_view from, std::string_view to, std::string_view message) {
 
     const std::string messageToSend(makeResponseSendMessage(from, message));
 
