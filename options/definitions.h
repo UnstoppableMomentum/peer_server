@@ -1,32 +1,32 @@
 /*
-* Copyright 2021 <QQQ>
+* Copyright 2022 <QQQ>
 */
 
 #ifndef OPTIONS_DEFINITIONS_H_
 #define OPTIONS_DEFINITIONS_H_
 
-const char kCmdLineOptHelp[] = "help";
-const char kCmdLineOptConfig[] = "config";
-const char kCmdLineOptServer[] = "server";
-const char kCmdLineDbgLevel[] = "dbg_level";
-const char kCmdLineOptSslSrt[] = "ssl_srt";
-const char kCmdLineOptSslKey[] = "ssl_key";
-const char kCmdLineOptPort[] = "port";
+constexpr char kCmdLineOptHelp[] = "help";
+constexpr char kCmdLineOptConfig[] = "config";
+constexpr char kCmdLineOptServer[] = "server";
+constexpr char kCmdLineDbgLevel[] = "dbg_level";
+constexpr char kCmdLineOptSslSrt[] = "ssl_srt";
+constexpr char kCmdLineOptSslKey[] = "ssl_key";
+constexpr char kCmdLineOptPort[] = "port";
 
-const char kDefaultPathConfig[] = "config.json";
-const char kDefaultServer[] = "localhost";
-const char kDefaultDbgLevel[] = "info";
-const char kDefaultPathSslSrt[] = "server.crt";
-const char kDefaultPathSslKey[] = "server.key";
-const std::uint16_t kDefaultPort = 8080;
+constexpr char kDefaultPathConfig[] = "config.json";
+constexpr char kDefaultServer[] = "localhost";
+constexpr char kDefaultDbgLevel[] = "info";
+constexpr char kDefaultPathSslSrt[] = "server.crt";
+constexpr char kDefaultPathSslKey[] = "server.key";
+constexpr std::uint16_t kDefaultPort = 8080;
 
-const char kHelpHeader[] = "Command line options:";
-const char kHelpHelp[] = "Show help";
-const char kHelpPathConfig[] = "\"path to configuration file\"";
-const char kHelpServer[] = "\"peer server IP or domain\"";
-const char kHelpDbgLevel[] = "\"debug level: 'debug', 'info', 'warning', 'error' or 'fatal' \"";
-const char kHelpPathSslSrt[] = "\"path to SSH sert file\"";
-const char kHelpPathSslKey[] = "\"path to SSH key file\"";
-const char kHelpPort[] = "\"Port\"";
+constexpr char kHelpHeader[] = "Command line options:";
+constexpr char kHelpHelp[] = "Show help";
+constexpr char kHelpPathConfig[] = "\"path to configuration file\"";
+constexpr char kHelpServer[] = "\"peer server IP or domain\"";
+constexpr char kHelpDbgLevel[] = "\"debug level: 'debug', 'info', 'warning', 'error' or 'fatal' \"";
+constexpr char kHelpPathSslSrt[] = "\"path to SSH sert file\"";
+constexpr char kHelpPathSslKey[] = "\"path to SSH key file\"";
+constexpr char kHelpPort[] = "\"Port\"";
 
 #endif  // OPTIONS_DEFINITIONS_H_

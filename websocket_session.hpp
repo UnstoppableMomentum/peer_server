@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <utility>
 
 #include <boost/beast/ssl.hpp>
 
@@ -45,18 +45,13 @@ class websocket_session : public
 
     template<class Body, class Allocator>
     void run(http::request<Body, http::basic_fields<Allocator>> req);
-
     void run();
-
     void on_run();
-   //  template<class Body, class Allocator>
     void on_handshake(beast::error_code ec);
 
     // Send a message
     void send(boost::shared_ptr<std::string const> const& ss);
-
-    // TODO perfect forwarding
-    void setId(const std::string& id) { id_ = id; }
+    void setId(const std::string& id) { id_ = std::move(id); }
     const std::string& getId() const { return id_; }
  private:
     void on_send(boost::shared_ptr<std::string const> const& ss);
@@ -66,7 +61,6 @@ class websocket_session : public
 template<class Body, class Allocator>
 void websocket_session::run(
     http::request<Body, http::basic_fields<Allocator>> req) {
-
 
     // Set the timeout.
     beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(30));

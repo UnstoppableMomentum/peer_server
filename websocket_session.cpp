@@ -49,8 +49,6 @@ void websocket_session::on_accept(beast::error_code ec) {
 }
 
 void websocket_session::on_read(beast::error_code ec, std::size_t) {
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
-
     // Handle the error, if any
     if (ec) {
         return fail(ec, "read");

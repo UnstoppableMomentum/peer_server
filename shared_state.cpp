@@ -15,29 +15,29 @@
 #include "websocket_session.hpp"
 #include "messaging/response.h"
 
-shared_state::
-    shared_state(std::string doc_root)
+shared_state::shared_state(std::string doc_root)
     : doc_root_(std::move(doc_root)) {
 }
 
-void shared_state::
-    join(websocket_session *session) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-
+void shared_state::join(websocket_session *session) {
     std::lock_guard<std::mutex> lock(mutex_);
     sessions_.insert(session);
 }
 
-void shared_state::
-    leave(websocket_session *session) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
+void shared_state::leave(websocket_session *session) {
     std::lock_guard<std::mutex> lock(mutex_);
     sessions_.erase(session);
+#if defined (DEBUG)
+    dump();
+#endif
 }
 
 std::string shared_state::sendMessage(
     std::string_view from, std::string_view to,
     std::string_view message) {
+ #if defined (DEBUG)
+    dump();
+#endif
     std::string response;
     if (!to.empty() && !message.empty()) {
         int res = sendTo(from, to, message);
@@ -55,15 +55,20 @@ std::string shared_state::sendMessage(
 std::string shared_state::processRequestSignIn(const boost::property_tree::ptree& pt, websocket_session* ws) {
     std::string response = "";
     try {
-        std::string id = pt.get<std::string>("data.id", "");
+        const std::string id(pt.get<std::string>("data.id", ""));
         LOG_DEBUG() << " id:" << id;
-
-        ws->setId(id);
-        response = makeResponseSignIn();
+        if (exists(id)) {
+            response = makeResponseError(EError::idIsAlreadyConnected);
+        } else {
+            ws->setId(id);
+            response = makeResponseSignIn();
+        }
     } catch(...) {
         response = makeResponseError(EError::invalidRequest);
     }
-
+#if defined (DEBUG)
+    dump();
+#endif
     return response;
 }
 
@@ -99,7 +104,6 @@ std::string shared_state::handle_message(websocket_session* ws, std::string_view
                 response = makeResponseNop();
             break;
             case EMessageId::SIGN_IN:
-
                 response = processRequestSignIn(pt, ws);
             break;
             case EMessageId::SIGN_OUT:
@@ -184,3 +188,23 @@ int shared_state::sendTo(
     }
     return res;
 }
+
+TSessionsConstItr shared_state::find(std::string_view id) const {
+    TSessionsConstItr res = sessions_.end();
+    for (TSessionsConstItr it(sessions_.begin()); it != sessions_.end(); ++it) {
+        if ((*it)->getId() == id) {
+            res = it;
+        }
+    }
+    return res;
+}
+
+#if defined (DEBUG)
+void shared_state::dump() const {
+    LOG_DEBUG() << ">>>";
+    for (auto p : sessions_) {
+        LOG_DEBUG() << " id:" << p->getId();
+    }
+    LOG_DEBUG() << "<<<";
+}
+#endif

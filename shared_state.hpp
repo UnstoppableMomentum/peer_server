@@ -18,16 +18,19 @@
 // Forward declaration
 class websocket_session;
 
+using TSessions = std::unordered_set<websocket_session*>;
+using TSessionsConstItr = TSessions::const_iterator;
 
 // Represents the shared server state
 class shared_state {
     std::string const doc_root_;
 
+
     // This mutex synchronizes all access to sessions_
     std::mutex mutex_;
 
     // Keep a list of all the connected clients
-    std::unordered_set<websocket_session*> sessions_;
+    TSessions sessions_;
 
  public:
     explicit shared_state(std::string doc_root);
@@ -44,6 +47,18 @@ class shared_state {
 
     void send(std::string message);
     int sendTo(std::string_view from, std::string_view to, std::string_view message);
+
+    TSessionsConstItr begin() const { return sessions_.begin(); }
+    TSessionsConstItr end() const { return sessions_.end(); }
+    TSessionsConstItr find(std::string_view id) const;
+    bool exists(std::string_view id) const { return find(id) != end(); }
+
+#if defined (DEBUG)
+
+ private:
+    void dump() const;
+
+#endif
 };
 
 #endif  // SHARED_STATE_HPP_

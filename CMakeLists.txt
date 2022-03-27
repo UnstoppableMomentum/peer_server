@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(Boost_USE_STATIC_LIBS ON)
 
+
+add_definitions(-DDEBUG)
+
 # set the project name
 project(peer_server)
 
