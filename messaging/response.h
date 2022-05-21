@@ -1,13 +1,16 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #ifndef MESSAGING_RESPONSE_H_
 #define MESSAGING_RESPONSE_H_
 
+#include <string>
 #include <string_view>
 
-#include "messaging/signaling_protocol.h"
+#include "signaling_protocol.h"
 
 std::string makeResponseSuccess();
 std::string makeResponseError(EError error);

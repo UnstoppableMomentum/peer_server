@@ -1,16 +1,12 @@
-//
-// Copyright (c) 2022 QAZ
-//
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
-//------------------------------------------------------------------------------
-/*
-    Peer connection server, multi-threaded
-
-    This implements a peer connection server using WebSocket. 
-    The `io_context` runs on any number of threads, specified at
-    the command line.
-*/
-//------------------------------------------------------------------------------
+// Peer connection server, multi-threaded
+// This implements a peer connection server using WebSocket.
+// The `io_context` runs on any number of threads, specified at the command line.
 
 #include <iostream>
 #include <vector>

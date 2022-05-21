@@ -32,6 +32,9 @@ class shared_state {
     // Keep a list of all the connected clients
     TSessions sessions_;
 
+    std::string processRequestSignIn(const boost::property_tree::ptree& pt, websocket_session* ws);
+    std::string processRequestSendMessage(const boost::property_tree::ptree& pt, websocket_session* ws);
+
  public:
     explicit shared_state(std::string doc_root);
 
@@ -39,11 +42,9 @@ class shared_state {
 
     void join(websocket_session* session);
     void leave(websocket_session* session);
-    std::string processRequestSignIn(const boost::property_tree::ptree& pt, websocket_session* ws);
 
     std::string handle_message(websocket_session* ws, std::string_view message);
     std::string sendMessage(std::string_view from, std::string_view to, std::string_view message);
-    std::string processRequestSendMessage(const boost::property_tree::ptree& pt, websocket_session* ws);
 
     void send(std::string message);
     int sendTo(std::string_view from, std::string_view to, std::string_view message);

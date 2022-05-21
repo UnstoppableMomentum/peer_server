@@ -1,9 +1,13 @@
-//
-// Copyright (c) 2022 QAZ
-//
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #include <iostream>
 #include <utility>
+
+#include "logging/logging.h"
 
 #include "websocket_session.hpp"
 
@@ -13,7 +17,6 @@ websocket_session::websocket_session(
     boost::shared_ptr<shared_state> const& state)
     : ws_(std::move(socket), ctx)
     , state_(state) {
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
 }
 
 websocket_session::~websocket_session() {
@@ -27,11 +30,11 @@ void websocket_session::fail(beast::error_code ec, char const* what) {
         ec == websocket::error::closed)
         return;
 
-    std::cerr << __PRETTY_FUNCTION__ << " what: "<< what << ": " << ec.message() << "\n";
+    LOG_DEBUG() << " what: "<< what << ": " << ec.message() << "\n";
 }
 
 void websocket_session::on_accept(beast::error_code ec) {
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
+    LOG_DEBUG() << " this:" << this << std::endl;
     // Handle the error, if any
     if (ec) {
         return fail(ec, "accept");
@@ -79,7 +82,7 @@ void websocket_session::send(boost::shared_ptr<std::string const> const& ss) {
     // that the members of `this` will not be
     // accessed concurrently.
 
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
+    LOG_DEBUG() << " this:" << this << std::endl;
 
     net::post(
         ws_.get_executor(),
@@ -91,7 +94,7 @@ void websocket_session::send(boost::shared_ptr<std::string const> const& ss) {
 
 void websocket_session::on_send(
     boost::shared_ptr<std::string const> const& ss) {
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
+    LOG_DEBUG() << " this:" << this << std::endl;
     // Always add to queue
     queue_.push_back(ss);
 
@@ -108,7 +111,7 @@ void websocket_session::on_send(
 }
 
 void websocket_session::on_write(beast::error_code ec, std::size_t) {
-    std::cout << __PRETTY_FUNCTION__ << " this:" << this << std::endl;
+    LOG_DEBUG() << " this:" << this << std::endl;
     // Handle the error, if any
     if (ec)
         return fail(ec, "write");
@@ -126,16 +129,14 @@ void websocket_session::on_write(beast::error_code ec, std::size_t) {
 }
 
 void websocket_session::on_handshake(beast::error_code ec) {
-    if(ec) {
-        std::cout << __PRETTY_FUNCTION__ << 
-        " error code:" << ec << std::endl;
-            return fail(ec, "handshake");
-            }
+    if (ec) {
+        LOG_DEBUG()  << "error code:" << ec << std::endl;
+        return fail(ec, "handshake");
+    }
 
-        // Turn off the timeout on the tcp_stream, because
-        // the websocket stream has its own timeout system.
-        beast::get_lowest_layer(ws_).expires_never();
-
+    // Turn off the timeout on the tcp_stream, because
+    // the websocket stream has its own timeout system.
+    beast::get_lowest_layer(ws_).expires_never();
 
     // Set suggested timeout settings for the websocket
     ws_.set_option(
@@ -160,8 +161,7 @@ void websocket_session::on_handshake(beast::error_code ec) {
 
     // Get on the correct executor
     void
-    websocket_session::run()
-    {
+    websocket_session::run() {
         // We need to be executing within a strand to perform async operations
         // on the I/O objects in this session. Although not strictly necessary
         // for single-threaded contexts, this example code is written to be
@@ -172,10 +172,9 @@ void websocket_session::on_handshake(beast::error_code ec) {
                 shared_from_this()));
     }
 
-   // Start the asynchronous operation
+    // Start the asynchronous operation
     void
-    websocket_session::on_run()
-    {
+    websocket_session::on_run() {
         // Set the timeout.
         beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(30));
 

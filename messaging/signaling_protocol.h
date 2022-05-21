@@ -1,6 +1,8 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #ifndef MESSAGING_SIGNALING_PROTOCOL_H_
 #define MESSAGING_SIGNALING_PROTOCOL_H_
@@ -23,7 +25,8 @@ enum class EError {
     invalidRequest = 0,
     internalError  = 1,
     recipientNotFound = 2,
-    idIsAlreadyConnected = 3,
+    idIsEmpty = 3,
+    idIsAlreadyConnected = 4,
 };
 
 #endif  // MESSAGING_SIGNALING_PROTOCOL_H_

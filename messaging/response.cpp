@@ -1,18 +1,22 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "messaging/response.h"
+#include "response.h"
 
 std::string getErrorString(EError error) {
     // TODO(qqq) enum to string
     static const char * kErrorMessages[] = {
         "Invalid message",
         "Internal error",
-        "Recipient not Found"
+        "Recipient not Found",
+        "User id is empty",
+        "User is connected already",
     };
     return kErrorMessages[static_cast<int>(error)];
 }

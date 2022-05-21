@@ -57,11 +57,15 @@ std::string shared_state::processRequestSignIn(const boost::property_tree::ptree
     try {
         const std::string id(pt.get<std::string>("data.id", ""));
         LOG_DEBUG() << " id:" << id;
-        if (exists(id)) {
-            response = makeResponseError(EError::idIsAlreadyConnected);
+        if (id.empty()) {
+            response = makeResponseError(EError::idIsEmpty);
         } else {
-            ws->setId(id);
-            response = makeResponseSignIn();
+            if (exists(id)) {
+                response = makeResponseError(EError::idIsAlreadyConnected);
+            } else {
+                ws->setId(id);
+                response = makeResponseSignIn();
+            }
         }
     } catch(...) {
         response = makeResponseError(EError::invalidRequest);

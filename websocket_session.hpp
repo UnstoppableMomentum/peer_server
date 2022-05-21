@@ -1,6 +1,8 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #ifndef WEBSOCKET_SESSION_HPP_
 #define WEBSOCKET_SESSION_HPP_
