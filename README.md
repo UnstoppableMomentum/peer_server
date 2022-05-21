@@ -1,4 +1,6 @@
 # peer_server
 Peer-to-peer server based on WebSockets.
 
-![Test page][qrcode_unstoppablemomentum.github.io.png]
+<h3>Test application</h3>
+<img src="./qrcode_unstoppablemomentum.github.io.png" alt='Selenika Video Chat'>
+
