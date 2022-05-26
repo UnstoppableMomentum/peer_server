@@ -7,11 +7,12 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "../options/cmd_line_options.h"
-#include "../options/definitions.h"
+#include "./cmd_line_options.h"
+#include "./definitions.h"
 
 CommandLineOptions::CommandLineOptions(int ac, char *av[])
   : m_iPort(kDefaultPort)
+  , m_iMaxNumConnections(kDefaultMaxNumConnections)
   , m_sPathConfig(kDefaultPathConfig)
   , m_sServer(kDefaultServer)
   , m_sDbgLevel(kDefaultDbgLevel)
@@ -29,6 +30,7 @@ void CommandLineOptions::ShowHelp() {
     << "--" << kCmdLineOptSslKey << "=" << kHelpPathSslKey << std::endl
     << "--" << kCmdLineOptServer << "=" << kHelpServer << std::endl
     << "--" << kCmdLineOptPort << "=" << kHelpPort << std::endl
+    << "--" << kCmdLineMaxNumConnections << "=" << kHelpMaxNumConnections << std::endl
     << "--" << kCmdLineDbgLevel << "=" << kHelpDbgLevel << std::endl;
 }
 
@@ -43,7 +45,8 @@ void CommandLineOptions::Init(int ac, char *av[]) {
   (kCmdLineDbgLevel, po::value<std::string>(), kHelpDbgLevel)
   (kCmdLineOptSslSrt, po::value<std::string>(), kHelpPathSslSrt)
   (kCmdLineOptSslKey, po::value<std::string>(), kHelpPathSslKey)
-  (kCmdLineOptPort, po::value<std::uint16_t>(), kHelpPort);
+  (kCmdLineOptPort, po::value<std::uint16_t>(), kHelpPort)
+  (kCmdLineMaxNumConnections, po::value<std::uint32_t>(), kHelpMaxNumConnections);
 
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
@@ -69,6 +72,9 @@ void CommandLineOptions::Init(int ac, char *av[]) {
 
     if (vm.count(kCmdLineOptPort))
       m_iPort = vm[kCmdLineOptPort].as<std::uint16_t>();
+
+    if (vm.count(kCmdLineMaxNumConnections))
+      m_iMaxNumConnections = vm[kCmdLineMaxNumConnections].as<std::uint32_t>();
   } catch (std::exception &ex) {
     std::cout << desc << std::endl;
     ShowHelp();
@@ -81,6 +87,7 @@ void CommandLineOptions::ShowOptions() const {
     << kCmdLineOptConfig << ": " << GetPathConfig() << std::endl
     << kCmdLineOptServer << ": " << GetServer() << std::endl
     << kCmdLineOptPort << ": " << GetPort() << std::endl
+    << kCmdLineMaxNumConnections << ": " << GetMaxNumConnections() << std::endl
     << kCmdLineOptSslSrt << ": " << GetPathSslSrt() << std::endl
     << kCmdLineOptSslKey << ": " << GetPathSslKey() << std::endl
     << kCmdLineDbgLevel << ": " << GetDbgLevel() << std::endl;

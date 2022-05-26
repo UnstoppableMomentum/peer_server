@@ -41,14 +41,12 @@ void websocket_session::on_accept(beast::error_code ec) {
     }
 
     // Add this session to the list of active sessions
-    state_->join(this);
-
-    // Read a message
-    ws_.async_read(
-        buffer_,
-        beast::bind_front_handler(
-            &websocket_session::on_read,
-            shared_from_this()));
+    if (state_->join(this)) {
+        // Read a message
+        ws_.async_read(buffer_, beast::bind_front_handler(&websocket_session::on_read, shared_from_this()));
+    } else {
+        return fail(ec, "new connection is not allowed");
+    }
 }
 
 void websocket_session::on_read(beast::error_code ec, std::size_t) {

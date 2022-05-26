@@ -1,9 +1,12 @@
-//
-// Copyright (c) 2022 QAZ
-//
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #include <iostream>
 #include <utility>
+#include <vector>
 
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -15,13 +18,20 @@
 #include "websocket_session.hpp"
 #include "messaging/response.h"
 
-shared_state::shared_state(std::string doc_root)
-    : doc_root_(std::move(doc_root)) {
+shared_state::shared_state(std::string doc_root, std::uint32_t max_num_connections)
+    : doc_root_(std::move(doc_root))
+    , max_num_connections_(max_num_connections) {
+    LOG_DEBUG() << " max_num_connections:" << max_num_connections_;
 }
 
-void shared_state::join(websocket_session *session) {
+bool shared_state::join(websocket_session *session) {
     std::lock_guard<std::mutex> lock(mutex_);
-    sessions_.insert(session);
+    bool res = false;
+    if (newConnectionIsAllowed()) {
+        sessions_.insert(session);
+        res = true;
+    }
+    return res;
 }
 
 void shared_state::leave(websocket_session *session) {
@@ -35,7 +45,7 @@ void shared_state::leave(websocket_session *session) {
 std::string shared_state::sendMessage(
     std::string_view from, std::string_view to,
     std::string_view message) {
- #if defined (DEBUG)
+#if defined(DEBUG)
     dump();
 #endif
     std::string response;
@@ -129,7 +139,7 @@ std::string shared_state::handle_message(websocket_session* ws, std::string_view
 
 // Broadcast a message to all websocket client sessions
 void shared_state::send(std::string message) {
-    std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
+    LOG_DEBUG() << " message:" << message;
     // Put the message in a shared pointer so we can re-use it for each client
     auto const ss = boost::make_shared<std::string const>(std::move(message));
 
@@ -171,9 +181,6 @@ int shared_state::sendTo(
         for (auto p : sessions_) {
             if (p->getId() == to) {
                 ++res;
-                std::cout << __PRETTY_FUNCTION__ 
-                << " res: " << res
-                << " FOUND to:" << to << std::endl;
                 v.emplace_back(p->weak_from_this());
             }
         }
@@ -182,10 +189,7 @@ int shared_state::sendTo(
     // For each session in our local list, try to acquire a strong
     // pointer. If successful, then send the message on that session.
     for (auto const &wp : v) {
-    std::cout << __PRETTY_FUNCTION__ << " send to:"
-        << to 
-        << " " << message 
-        << std::endl;
+        LOG_DEBUG() << " send to:" << to << " " << message;
 
         if (auto sp = wp.lock())
             sp->send(ss);

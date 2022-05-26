@@ -36,14 +36,14 @@ int main(int argc, char *argv[]) {
 
     try {
         LOG_DEBUG() << "Apply debug level: " << clo.GetDbgLevel();
-        osv::logging::set_level(clo.GetDbgLevel());
+        selenika::logging::set_level(clo.GetDbgLevel());
 
         LOG_DEBUG() << "Apply parameter address:" << clo.GetServer();
         std::string host = clo.GetServer();
         // net::ip::make_address(clo.GetServer());
 
-        LOG_DEBUG() << "Apply parameter port:" << clo.GetPort();
-        std::uint16_t port = clo.GetPort();
+        LOG_DEBUG() << "Listen port:" << clo.GetPort();
+        LOG_DEBUG() << "Maximum number of connections:" << clo.GetMaxNumConnections();
 
         LOG_DEBUG() << "Apply parameter doc_root: '.'";
         auto const doc_root = ".";
@@ -79,7 +79,12 @@ int main(int argc, char *argv[]) {
         net::io_context ioc;
 
         // Create and launch a listening port
-        boost::make_shared<listener>(host, port, ioc, ctx, boost::make_shared<shared_state>(doc_root))->run();
+        boost::make_shared<listener>(
+            host,
+            clo.GetPort(),
+            ioc,
+            ctx,
+            boost::make_shared<shared_state>(doc_root, clo.GetMaxNumConnections()))->run();
 
         LOG_DEBUG() << "Start waiting SIGINT, SIGTERM signals";
 

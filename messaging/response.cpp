@@ -7,7 +7,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "response.h"
+#include "./response.h"
 
 std::string getErrorString(EError error) {
     // TODO(qqq) enum to string
@@ -17,6 +17,7 @@ std::string getErrorString(EError error) {
         "Recipient not Found",
         "User id is empty",
         "User is connected already",
+        "The maximum number of connections is reached"
     };
     return kErrorMessages[static_cast<int>(error)];
 }

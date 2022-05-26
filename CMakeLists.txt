@@ -1,6 +1,8 @@
-#
-# Copyright (c) 2022 QAZ
-#
+###############################
+#                             #
+# Copyright (c) 2022 Selenika #
+#                             #
+###############################
 
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
@@ -17,9 +19,6 @@ project(peer_server)
 find_package(Boost 1.77.0 COMPONENTS log regex program_options thread system REQUIRED)
 find_package(OpenSSL)
 find_package(Threads REQUIRED)
-
-
-include_directories(.)
 
 # add the executable
 add_executable(peer_server
