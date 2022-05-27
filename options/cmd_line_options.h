@@ -1,6 +1,9 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
+
 
 #ifndef OPTIONS_CMD_LINE_OPTIONS_H_
 #define OPTIONS_CMD_LINE_OPTIONS_H_

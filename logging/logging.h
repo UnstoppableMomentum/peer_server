@@ -1,6 +1,9 @@
-/*
-* Copyright 2021 <QQQ>
-*/
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
+
 
 #ifndef LOGGING_LOGGING_H_
 #define LOGGING_LOGGING_H_

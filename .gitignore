@@ -1,5 +1,7 @@
 peer_server
 
+build
+
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
