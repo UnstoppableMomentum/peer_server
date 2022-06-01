@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
         LOG_DEBUG() << "Init SSL";
         // The SSL context is required, and holds certificates
-        boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv12};
+        boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv13};
 
         if (!path_ssl_crt.empty() && !path_ssl_key.empty()) {
             ctx.use_certificate_chain_file(path_ssl_crt);
