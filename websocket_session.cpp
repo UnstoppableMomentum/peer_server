@@ -30,11 +30,11 @@ void websocket_session::fail(beast::error_code ec, char const* what) {
         ec == websocket::error::closed)
         return;
 
-    LOG_DEBUG() << " what: "<< what << ": " << ec.message() << "\n";
+    SLNK_LOG_DEBUG() << " what: "<< what << ": " << ec.message() << "\n";
 }
 
 void websocket_session::on_accept(beast::error_code ec) {
-    LOG_DEBUG() << " this:" << this << std::endl;
+    SLNK_LOG_DEBUG() << " this:" << this << std::endl;
     // Handle the error, if any
     if (ec) {
         return fail(ec, "accept");
@@ -80,7 +80,7 @@ void websocket_session::send(boost::shared_ptr<std::string const> const& ss) {
     // that the members of `this` will not be
     // accessed concurrently.
 
-    LOG_DEBUG() << " this:" << this << std::endl;
+    SLNK_LOG_DEBUG() << " this:" << this << std::endl;
 
     net::post(
         ws_.get_executor(),
@@ -92,7 +92,7 @@ void websocket_session::send(boost::shared_ptr<std::string const> const& ss) {
 
 void websocket_session::on_send(
     boost::shared_ptr<std::string const> const& ss) {
-    LOG_DEBUG() << " this:" << this << std::endl;
+    SLNK_LOG_DEBUG() << " this:" << this << std::endl;
     // Always add to queue
     queue_.push_back(ss);
 
@@ -109,7 +109,7 @@ void websocket_session::on_send(
 }
 
 void websocket_session::on_write(beast::error_code ec, std::size_t) {
-    LOG_DEBUG() << " this:" << this << std::endl;
+    SLNK_LOG_DEBUG() << " this:" << this << std::endl;
     // Handle the error, if any
     if (ec)
         return fail(ec, "write");
@@ -128,7 +128,7 @@ void websocket_session::on_write(beast::error_code ec, std::size_t) {
 
 void websocket_session::on_handshake(beast::error_code ec) {
     if (ec) {
-        LOG_DEBUG()  << "error code:" << ec << std::endl;
+        SLNK_LOG_DEBUG()  << "error code:" << ec << std::endl;
         return fail(ec, "handshake");
     }
 

@@ -8,6 +8,8 @@
 // This implements a peer connection server using WebSocket.
 // The `io_context` runs on any number of threads, specified at the command line.
 
+#include <syslog.h>
+
 #include <iostream>
 #include <vector>
 
@@ -28,36 +30,35 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
-    LOG_INFO() << "Start Peer Server";
+    SLNK_LOG_INFO() << "Start Peer Server";
 
     if ("debug" == clo.GetDbgLevel()) {
         clo.ShowOptions();
     }
 
     try {
-        LOG_DEBUG() << "Apply debug level: " << clo.GetDbgLevel();
+        SLNK_LOG_DEBUG() << "Apply debug level: " << clo.GetDbgLevel();
         selenika::logging::set_level(clo.GetDbgLevel());
 
-        LOG_DEBUG() << "Apply parameter address:" << clo.GetServer();
+        SLNK_LOG_DEBUG() << "Apply parameter address:" << clo.GetServer();
         std::string host = clo.GetServer();
-        // net::ip::make_address(clo.GetServer());
 
-        LOG_DEBUG() << "Listen port:" << clo.GetPort();
-        LOG_DEBUG() << "Maximum number of connections:" << clo.GetMaxNumConnections();
+        SLNK_LOG_DEBUG() << "Listen port:" << clo.GetPort();
+        SLNK_LOG_DEBUG() << "Maximum number of connections:" << clo.GetMaxNumConnections();
 
-        LOG_DEBUG() << "Apply parameter doc_root: '.'";
+        SLNK_LOG_DEBUG() << "Apply parameter doc_root: '.'";
         auto const doc_root = ".";
 
-        LOG_DEBUG() << "Apply parameter threads: 1";
-        auto const threads = 1;
+        SLNK_LOG_DEBUG() << "Apply parameter threads: 1";
+        auto const threadsNum = 1;
 
-        LOG_DEBUG() << "Apply parameter PathSslSrt:" << clo.GetPathSslSrt();
+        SLNK_LOG_DEBUG() << "Apply parameter PathSslSrt:" << clo.GetPathSslSrt();
         const std::string path_ssl_crt = clo.GetPathSslSrt();
 
-        LOG_DEBUG() << "Apply parameter PathSslKey:" << clo.GetPathSslKey();
+        SLNK_LOG_DEBUG() << "Apply parameter PathSslKey:" << clo.GetPathSslKey();
         const std::string path_ssl_key = clo.GetPathSslKey();
 
-        LOG_DEBUG() << "Init SSL";
+        SLNK_LOG_DEBUG() << "Init SSL";
         // The SSL context is required, and holds certificates
         boost::asio::ssl::context ctx{boost::asio::ssl::context::tlsv13};
 
@@ -74,7 +75,7 @@ int main(int argc, char *argv[]) {
                 boost::asio::ssl::context::single_dh_use);
         }
 
-        LOG_DEBUG() << "Create and launch a listening port";
+        SLNK_LOG_DEBUG() << "Create and launch a listening port";
         // The io_context is required for all I/O
         net::io_context ioc;
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
             ctx,
             boost::make_shared<shared_state>(doc_root, clo.GetMaxNumConnections()))->run();
 
-        LOG_DEBUG() << "Start waiting SIGINT, SIGTERM signals";
+        SLNK_LOG_DEBUG() << "Start waiting SIGINT, SIGTERM signals";
 
         // Capture SIGINT and SIGTERM to perform a clean shutdown
         net::signal_set signals(ioc, SIGINT, SIGTERM);
@@ -97,30 +98,143 @@ int main(int argc, char *argv[]) {
                 ioc.stop();
         });
 
-        LOG_DEBUG() << "Set up threads";
+        SLNK_LOG_DEBUG() << "Set up threads";
         // Run the I/O service on the requested number of threads
-        std::vector<std::thread> v;
-        v.reserve(threads - 1);
-        for (auto i = threads - 1; i > 0; --i) {
-            v.emplace_back([&ioc] { ioc.run(); });
+        std::vector<std::thread> threads;
+        threads.reserve(threadsNum - 1);
+        for (auto i = threadsNum - 1; i > 0; --i) {
+            threads.emplace_back([&ioc] { ioc.run(); });
         }
 
-        LOG_DEBUG() << "Run the I/O service, seems OK";
+        SLNK_LOG_DEBUG() << "Initialization of the I/O service seems OK";
+
+        if (clo.GetRunAsService()) {
+          try {
+              SLNK_LOG_DEBUG() << "Becoming a daemon...";
+
+              // Register signal handlers so that the daemon may be shut down. You may
+              // also want to register for other signals, such as SIGHUP to trigger a
+              // re-read of a configuration file.
+              boost::asio::signal_set signals(ioc, SIGINT, SIGTERM);
+              signals.async_wait(
+                  [&](boost::system::error_code /*ec*/, int /*signo*/) {
+                      ioc.stop();
+                  });
+
+              // Inform the io_context that we are about to become a daemon. The
+              // io_context cleans up any internal resources, such as threads, that may
+              // interfere with forking.
+              ioc.notify_fork(boost::asio::io_context::fork_prepare);
+
+              // Fork the process and have the parent exit. If the process was started
+              // from a shell, this returns control to the user. Forking a new process is
+              // also a prerequisite for the subsequent call to setsid().
+              if (pid_t pid = fork()) {
+                if (pid > 0) {
+                  // We're in the parent process and need to exit.
+                  //
+                  // When the exit() function is used, the program terminates without
+                  // invoking local variables' destructors. Only global variables are
+                  // destroyed. As the io_context object is a local variable, this means
+                  // we do not have to call:
+                  //
+                  //   io_context.notify_fork(boost::asio::io_context::fork_parent);
+                  //
+                  // However, this line should be added before each call to exit() if
+                  // using a global io_context object. An additional call:
+                  //
+                  //   io_context.notify_fork(boost::asio::io_context::fork_prepare);
+                  //
+                  // should also precede the second fork().
+                  exit(0);
+                } else {
+                  syslog(LOG_ERR | LOG_USER, "First fork failed: %m");
+                  return 1;
+                }
+              }
+
+              // Make the process a new session leader. This detaches it from the
+              // terminal.
+              setsid();
+
+              // A process inherits its working directory from its parent. This could be
+              // on a mounted filesystem, which means that the running daemon would
+              // prevent this filesystem from being unmounted. Changing to the root
+              // directory avoids this problem.
+              chdir("/");
+
+              // The file mode creation mask is also inherited from the parent process.
+              // We don't want to restrict the permissions on files created by the
+              // daemon, so the mask is cleared.
+              umask(0);
+
+              // A second fork ensures the process cannot acquire a controlling terminal.
+              if (pid_t pid = fork()) {
+                if (pid > 0) {
+                  exit(0);
+                } else {
+                  syslog(LOG_ERR | LOG_USER, "Second fork failed: %m");
+                  return 1;
+                }
+              }
+
+              // Close the standard streams. This decouples the daemon from the terminal
+              // that started it.
+              close(0);
+              close(1);
+              close(2);
+
+              // We don't want the daemon to have any standard input.
+              if (open("/dev/null", O_RDONLY) < 0) {
+                syslog(LOG_ERR | LOG_USER, "Unable to open /dev/null: %m");
+                return 1;
+              }
+
+              // Send standard output to a log file.
+              const char* output = "/tmp/asio.daemon.out";
+              const int flags = O_WRONLY | O_CREAT | O_APPEND;
+              const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+              if (open(output, flags, mode) < 0) {
+                syslog(LOG_ERR | LOG_USER, "Unable to open output file %s: %m", output);
+                return 1;
+              }
+
+              // Also send standard error to the same log file.
+              if (dup(1) < 0) {
+                syslog(LOG_ERR | LOG_USER, "Unable to dup output descriptor: %m");
+                return 1;
+              }
+
+              // Inform the io_context that we have finished becoming a daemon. The
+              // io_context uses this opportunity to create any internal file descriptors
+              // that need to be private to the new process.
+              ioc.notify_fork(boost::asio::io_context::fork_child);
+
+              // The io_context can now be used normally.
+              syslog(LOG_INFO | LOG_USER, "Peer server daemon is ready");
+          } catch (std::exception &e) {
+              syslog(LOG_ERR | LOG_USER, "Exception: %s", e.what());
+              SLNK_LOG_ERROR() << "Settting up daemon failed: " << e.what() << std::endl;
+              throw;
+          }
+        }
+
+        SLNK_LOG_DEBUG() << "run service";
         ioc.run();
 
         // (If we get here, it means we got a SIGINT or SIGTERM)
-        LOG_DEBUG() << "got a SIGINT or SIGTERM";
+        SLNK_LOG_DEBUG() << "got a SIGINT or SIGTERM";
 
         // Block until all the threads exit
-        for (auto &t : v) {
+        for (auto &t : threads) {
             t.join();
         }
     } catch (const boost::system::system_error &ex) {
-        LOG_ERROR() << "Peer Server failed (boost::system::system_error): " << ex.what() << std::endl;
+        SLNK_LOG_ERROR() << "Peer Server failed (boost::system::system_error): " << ex.what() << std::endl;
     } catch (const std::exception &ex) {
-        LOG_ERROR() << "Peer Server failed (std::exception): " << ex.what() << std::endl;
+        SLNK_LOG_ERROR() << "Peer Server failed (std::exception): " << ex.what() << std::endl;
     } catch (...) {
-        LOG_ERROR() << "Peer Server failed (unknown exception)";
+        SLNK_LOG_ERROR() << "Peer Server failed (unknown exception)";
     }
 
     return EXIT_SUCCESS;

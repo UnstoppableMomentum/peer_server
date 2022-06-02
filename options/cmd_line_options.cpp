@@ -19,8 +19,10 @@ CommandLineOptions::CommandLineOptions(int ac, char *av[])
   , m_sPathConfig(kDefaultPathConfig)
   , m_sServer(kDefaultServer)
   , m_sDbgLevel(kDefaultDbgLevel)
+  , m_sPathLog(kDefaultLog)
   , m_sPathSslSrt(kDefaultPathSslSrt)
   , m_sPathSslKey(kDefaultPathSslKey)
+  , m_runAsService(kDefaultRunAsService)
   , m_bHelp(false) {
   Init(ac, av);
 }
@@ -29,12 +31,14 @@ void CommandLineOptions::ShowHelp() {
   std::cout << kHelpHeader << std::endl
     << "--" << kCmdLineOptHelp << " " << kHelpHelp << std::endl
     << "--" << kCmdLineOptConfig << "=" << kHelpPathConfig << std::endl
+    << "--" << kCmdLineLog << "=" << kHelpLog << std::endl
     << "--" << kCmdLineOptSslSrt << "=" << kHelpPathSslSrt << std::endl
     << "--" << kCmdLineOptSslKey << "=" << kHelpPathSslKey << std::endl
     << "--" << kCmdLineOptServer << "=" << kHelpServer << std::endl
     << "--" << kCmdLineOptPort << "=" << kHelpPort << std::endl
     << "--" << kCmdLineMaxNumConnections << "=" << kHelpMaxNumConnections << std::endl
-    << "--" << kCmdLineDbgLevel << "=" << kHelpDbgLevel << std::endl;
+    << "--" << kCmdLineDbgLevel << "=" << kHelpDbgLevel << std::endl
+    << "--" << kCmdLineRunAsService << "=" << kHelpRunAsService << std::endl;
 }
 
 void CommandLineOptions::Init(int ac, char *av[]) {
@@ -46,10 +50,12 @@ void CommandLineOptions::Init(int ac, char *av[]) {
   (kCmdLineOptConfig, po::value<std::string>(), kHelpPathConfig)
   (kCmdLineOptServer, po::value<std::string>(), kHelpServer)
   (kCmdLineDbgLevel, po::value<std::string>(), kHelpDbgLevel)
+  (kCmdLineLog, po::value<std::string>(), kHelpLog)
   (kCmdLineOptSslSrt, po::value<std::string>(), kHelpPathSslSrt)
   (kCmdLineOptSslKey, po::value<std::string>(), kHelpPathSslKey)
   (kCmdLineOptPort, po::value<std::uint16_t>(), kHelpPort)
-  (kCmdLineMaxNumConnections, po::value<std::uint32_t>(), kHelpMaxNumConnections);
+  (kCmdLineMaxNumConnections, po::value<std::uint32_t>(), kHelpMaxNumConnections)
+  (kCmdLineRunAsService, po::value<bool>(), kHelpRunAsService);
 
   po::variables_map vm;
   po::store(po::parse_command_line(ac, av, desc), vm);
@@ -67,6 +73,9 @@ void CommandLineOptions::Init(int ac, char *av[]) {
     if (vm.count(kCmdLineDbgLevel))
       m_sDbgLevel = vm[kCmdLineDbgLevel].as<std::string>();
 
+    if (vm.count(kCmdLineLog))
+      m_sPathLog = vm[kCmdLineLog].as<std::string>();
+
     if (vm.count(kCmdLineOptSslSrt))
       m_sPathSslSrt = vm[kCmdLineOptSslSrt].as<std::string>();
 
@@ -78,6 +87,9 @@ void CommandLineOptions::Init(int ac, char *av[]) {
 
     if (vm.count(kCmdLineMaxNumConnections))
       m_iMaxNumConnections = vm[kCmdLineMaxNumConnections].as<std::uint32_t>();
+
+    if (vm.count(kCmdLineRunAsService))
+      m_runAsService = vm[kCmdLineRunAsService].as<bool>();
   } catch (std::exception &ex) {
     std::cout << desc << std::endl;
     ShowHelp();
@@ -91,6 +103,8 @@ void CommandLineOptions::ShowOptions() const {
     << kCmdLineOptServer << ": " << GetServer() << std::endl
     << kCmdLineOptPort << ": " << GetPort() << std::endl
     << kCmdLineMaxNumConnections << ": " << GetMaxNumConnections() << std::endl
+    << kCmdLineRunAsService << ": " << GetRunAsService() << std::endl
+    << kCmdLineLog << ": " << GetPathLog() << std::endl
     << kCmdLineOptSslSrt << ": " << GetPathSslSrt() << std::endl
     << kCmdLineOptSslKey << ": " << GetPathSslKey() << std::endl
     << kCmdLineDbgLevel << ": " << GetDbgLevel() << std::endl;

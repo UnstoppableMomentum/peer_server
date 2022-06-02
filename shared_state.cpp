@@ -21,7 +21,7 @@
 shared_state::shared_state(std::string doc_root, std::uint32_t max_num_connections)
     : doc_root_(std::move(doc_root))
     , max_num_connections_(max_num_connections) {
-    LOG_DEBUG() << " max_num_connections:" << max_num_connections_;
+    SLNK_LOG_DEBUG() << " max_num_connections:" << max_num_connections_;
 }
 
 bool shared_state::join(websocket_session *session) {
@@ -66,7 +66,7 @@ std::string shared_state::processRequestSignIn(const boost::property_tree::ptree
     std::string response = "";
     try {
         const std::string id(pt.get<std::string>("data.id", ""));
-        LOG_DEBUG() << " id:" << id;
+        SLNK_LOG_DEBUG() << " id:" << id;
         if (id.empty()) {
             response = makeResponseError(EError::idIsEmpty);
         } else {
@@ -101,7 +101,7 @@ std::string shared_state::processRequestSendMessage(const boost::property_tree::
 }
 
 std::string shared_state::handle_message(websocket_session* ws, std::string_view message) {
-    LOG_DEBUG() << " message:" << message.data();
+    SLNK_LOG_DEBUG() << " message:" << message.data();
     std::string response = "test string";
     try {
         std::stringstream ss;
@@ -139,7 +139,7 @@ std::string shared_state::handle_message(websocket_session* ws, std::string_view
 
 // Broadcast a message to all websocket client sessions
 void shared_state::send(std::string message) {
-    LOG_DEBUG() << " message:" << message;
+    SLNK_LOG_DEBUG() << " message:" << message;
     // Put the message in a shared pointer so we can re-use it for each client
     auto const ss = boost::make_shared<std::string const>(std::move(message));
 
@@ -189,7 +189,7 @@ int shared_state::sendTo(
     // For each session in our local list, try to acquire a strong
     // pointer. If successful, then send the message on that session.
     for (auto const &wp : v) {
-        LOG_DEBUG() << " send to:" << to << " " << message;
+        SLNK_LOG_DEBUG() << " send to:" << to << " " << message;
 
         if (auto sp = wp.lock())
             sp->send(ss);
@@ -209,10 +209,10 @@ TSessionsConstItr shared_state::find(std::string_view id) const {
 
 #if defined (DEBUG)
 void shared_state::dump() const {
-    LOG_DEBUG() << ">>>";
+    SLNK_LOG_DEBUG() << ">>>";
     for (auto p : sessions_) {
-        LOG_DEBUG() << " id:" << p->getId();
+        SLNK_LOG_DEBUG() << " id:" << p->getId();
     }
-    LOG_DEBUG() << "<<<";
+    SLNK_LOG_DEBUG() << "<<<";
 }
 #endif

@@ -29,7 +29,7 @@ listener::listener(
     tcp::resolver::results_type results = resolver.resolve(host, ss.str(), error);
 
     for (tcp::endpoint const& endpoint : results) {
-        LOG_INFO() << endpoint << " try to utilize ...";
+        SLNK_LOG_INFO() << endpoint << " try to utilize ...";
 
         // Open the acceptor
         acceptor_.open(endpoint.protocol(), ec);
@@ -59,7 +59,7 @@ listener::listener(
             fail(ec, "listen");
             continue;
         }
-         LOG_INFO() << endpoint << " start listening";
+        SLNK_LOG_INFO() << endpoint << " start listening";
     }
 }
 
@@ -77,7 +77,7 @@ void listener::fail(beast::error_code ec, char const *what) {
     // Don't report on canceled operations
     if (ec == net::error::operation_aborted)
         return;
-    LOG_ERROR() << what << ": " << ec.message();
+     SLNK_LOG_ERROR() << what << ": " << ec.message();
 }
 
 // // Handle a connection
