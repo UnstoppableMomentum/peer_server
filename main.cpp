@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
             } else {
               syslog(LOG_ERR | LOG_USER, "First fork failed: %m");
               SLNK_LOG_ERROR() << "First fork failed";
-              return 1;
+              return EXIT_FAILURE;
             }
           }
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
             } else {
               syslog(LOG_ERR | LOG_USER, "Second fork failed: %m");
               SLNK_LOG_ERROR() << "Second fork failed";
-              return 1;
+              return EXIT_FAILURE;
             }
           }
 
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
           if (open("/dev/null", O_RDONLY) < 0) {
             syslog(LOG_ERR | LOG_USER, "Unable to open /dev/null: %m");
             SLNK_LOG_ERROR() << "Unable to open /dev/null";
-            return 1;
+            return EXIT_FAILURE;
           }
 
           // Send standard output to a log file.
@@ -204,14 +204,14 @@ int main(int argc, char *argv[]) {
           const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
           if (open(output, flags, mode) < 0) {
             syslog(LOG_ERR | LOG_USER, "Unable to open output file %s: %m", output);
-            return 1;
+            return EXIT_FAILURE;
           }
 
           // Also send standard error to the same log file.
           if (dup(1) < 0) {
             syslog(LOG_ERR | LOG_USER, "Unable to dup output descriptor: %m");
             SLNK_LOG_ERROR() << "Unable to dup output descriptor";
-            return 1;
+            return EXIT_FAILURE;
           }
 
           // Inform the io_context that we have finished becoming a daemon. The
