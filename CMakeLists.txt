@@ -14,14 +14,14 @@ set(Boost_USE_STATIC_LIBS ON)
 add_definitions(-DDEBUG)
 
 # set the project name
-project(peer_server)
+project(selenika-peer-server)
 
 find_package(Boost 1.77.0 COMPONENTS log regex program_options thread system REQUIRED)
 find_package(OpenSSL)
 find_package(Threads REQUIRED)
 
 # add the executable
-add_executable(peer_server
+add_executable(selenika-peer-server
         main.cpp
         listener.cpp
         shared_state.cpp
@@ -31,6 +31,6 @@ add_executable(peer_server
         options/cmd_line_options.cpp
         )
 
-target_link_libraries(peer_server ${OPENSSL_LIBRARIES} -static-libgcc -static-libstdc++)
-target_link_libraries(peer_server ${Boost_LIBRARIES} -static-libgcc -static-libstdc++)
-target_link_libraries(peer_server ${CMAKE_THREAD_LIBS_INIT} -static-libgcc -static-libstdc++)
+target_link_libraries(selenika-peer-server ${OPENSSL_LIBRARIES} -static-libgcc -static-libstdc++)
+target_link_libraries(selenika-peer-server ${Boost_LIBRARIES} -static-libgcc -static-libstdc++)
+target_link_libraries(selenika-peer-server ${CMAKE_THREAD_LIBS_INIT} -static-libgcc -static-libstdc++)
