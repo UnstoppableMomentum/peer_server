@@ -2,5 +2,6 @@ sudo mkdir -p /usr/share/selenika/peer-server/
 sudo cp start.sh /usr/share/selenika/peer-server/
 sudo cp selenika-peer-server /usr/share/selenika/peer-server/
 sudo cp init.d /etc/init.d/selenika-peer-server
+sudo cp logrotate.d /etc/logrotate.d/selenika-peer-server
 sudo chmod +x /etc/init.d/selenika-peer-server
 service --status-all
