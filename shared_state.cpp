@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <utility>
+#include <sstream>
 #include <vector>
 
 #include <boost/foreach.hpp>
@@ -54,9 +55,22 @@ std::string shared_state::sendMessage(
         if (res > 0) {
             response = makeResponseSuccess();
         } else {
+            SLNK_LOG_ERROR() << "Invalid send message request: recipient " << to << " not found";
             response = makeResponseError(EError::recipientNotFound);
         }
     } else {
+        std::stringstream ss;
+        ss << "Invalid send message request:";
+
+        if (to.empty()) {
+           ss << " recipient id is empty";
+        }
+
+        if (message.empty()) {
+           ss << " message is empty";
+        }
+
+        SLNK_LOG_ERROR() << ss.str();
         response = makeResponseError(EError::invalidRequest);
     }
     return response;

@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
           syslog(LOG_INFO | LOG_USER, "Peer server daemon is ready");
         }
 
-        SLNK_LOG_DEBUG() << "run service";
+        SLNK_LOG_DEBUG() << "run server";
         ioc.run();
 
         // (If we get here, it means we got a SIGINT or SIGTERM)
