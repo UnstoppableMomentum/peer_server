@@ -8,22 +8,23 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 
-#include "./logging.h"
+#include "config/definitions.h"
+#include "config/logging.h"
 
 namespace selenika {
 namespace logging {
     void set_level(const std::string& level) {
         boost::log::trivial::severity_level severity_level
             = boost::log::trivial::trace;
-        if ("debug" == level) {
+        if (kLogLevelDebug == level) {
             severity_level = boost::log::trivial::debug;
-        } else if ("info" == level) {
+        } else if (kLogLevelInfo == level) {
             severity_level = boost::log::trivial::info;
-        } else if ("warning" == level) {
+        } else if (kLogLevelWarning == level) {
             severity_level = boost::log::trivial::warning;
-        } else if ("error" == level) {
+        } else if (kLogLevelError == level) {
             severity_level = boost::log::trivial::error;
-        } else if ("fatal" == level) {
+        } else if (kLogLevelFatal == level) {
             severity_level = boost::log::trivial::fatal;
         }
 
