@@ -16,6 +16,9 @@ add_definitions(-DDEBUG)
 # set the project name
 project(selenika-peer-server)
 
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(options)
+
 find_package(Boost 1.77.0 COMPONENTS log regex program_options thread system REQUIRED)
 find_package(OpenSSL)
 find_package(Threads REQUIRED)

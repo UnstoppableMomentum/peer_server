@@ -9,6 +9,8 @@
 
 #include <string>
 
+// Logging configuration.
+
 namespace selenika {
 namespace logging {
     void set_level(const std::string& level);
