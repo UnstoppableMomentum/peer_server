@@ -4,14 +4,13 @@
 //                             //
 /////////////////////////////////
 
-
 #include <iostream>
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "./cmd_line_options.h"
-#include "./definitions.h"
+#include "options/cmd_line_options.h"
+#include "options/definitions.h"
 
 CommandLineOptions::CommandLineOptions(int ac, char *av[])
   : m_iPort(kDefaultPort)

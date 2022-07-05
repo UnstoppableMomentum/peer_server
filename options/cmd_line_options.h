@@ -4,7 +4,6 @@
 //                             //
 /////////////////////////////////
 
-
 #ifndef OPTIONS_CMD_LINE_OPTIONS_H_
 #define OPTIONS_CMD_LINE_OPTIONS_H_
 

@@ -1,6 +1,8 @@
-//
-// Copyright (c) 2022 QAZ
-//
+/////////////////////////////////
+//                             //
+// Copyright (c) 2022 Selenika //
+//                             //
+/////////////////////////////////
 
 #include <iostream>
 #include <utility>
